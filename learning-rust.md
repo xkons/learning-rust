@@ -151,6 +151,8 @@ Some languages manage a computer’s memory while running using garbage collecti
 
 Keeping track of what parts of code are using what data on the heap, minimizing the amount of duplicate data on the heap, and cleaning up unused data on the heap so you don’t run out of space are all problems that ownership addresses.
 
+Keep in mind: when a function returns a value, the ownership of that value is moved to the variable we assign the function call to.
+
 ### Ownership Rules
 
 - Each value in Rust has a variable that’s called its *owner*.
@@ -186,3 +188,27 @@ If you do want to create a deep clone of a String, you use the `.clone()` method
 ### copying fixed size types
 
 The size of integers is known at compile time so they are always stored on the stack (where copying is fast). So if you assign a "let x = 5" and a "let y = x", the value of x is copied into y, which is not an expensive thing to do during compilation. Both "x" and "y" remain valid variables.
+
+### references and borrowing
+
+If you want to pass a variable into a different scope (such as a function) but don't want that function to take ownership, you pass it as a &reference. This is called *borrowing*.
+
+References are immutable by default, but can be made mutable by declaring them like this: `fn foo(bar: &mut String)` if your source variable is also mutable.
+
+There's one limitation to mutable references: At any given time, you can have *either* one mutable reference *or* any number of immutable references.
+
+```rust
+let mut s = String::from("hello");
+let r1 = &mut s;
+let r2 = &mut s;
+println!("{}, {}", r1, r2);
+// -> cannot borrow `s` as mutable more than once at a time
+```
+
+This limitation allows the compiler to prevent data races at compile time.
+
+Also if there could be a mutable reference to a variable while an immutable one exists as well, the compiler could no longer guarantee that the immutable one won't change.
+
+#### dangling references
+
+In languages with pointers, it’s easy to erroneously create a *dangling pointer*, a pointer that references a location in memory that may have been given to someone else, by freeing some memory while preserving a pointer to that memory. In Rust, by contrast, the compiler guarantees that references will never be dangling references: if you have a reference to some data, the compiler will ensure that the data will not go out of scope before the reference to the data does.
