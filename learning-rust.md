@@ -29,7 +29,7 @@ It is possible to reassin previously instantiated let variables by assigning ano
 
 Use `break;` to stop a `loop`.
 
-## Common programming concepts
+## Chapter 3: Common programming concepts
 
 ### Variables and Mutability
 
@@ -145,7 +145,7 @@ fn five() -> i32 { // return type is i32
 
 
 
-## Understanding Ownership
+## Chapter 4: Understanding Ownership
 
 Some languages manage a computer’s memory while running using garbage collection during runtime, others have prgraommers explicitly allocating and freeing memory. Rust uses a third approach: memory is managed through a system of ownership with a set of rules that the compiler checks at compile time. None of the ownership features slow down your program while it’s running.
 
@@ -212,3 +212,7 @@ Also if there could be a mutable reference to a variable while an immutable one 
 #### dangling references
 
 In languages with pointers, it’s easy to erroneously create a *dangling pointer*, a pointer that references a location in memory that may have been given to someone else, by freeing some memory while preserving a pointer to that memory. In Rust, by contrast, the compiler guarantees that references will never be dangling references: if you have a reference to some data, the compiler will ensure that the data will not go out of scope before the reference to the data does.
+
+### Slices
+
+Slices in short are immutable references to parts of a `String` or `Array`, with a syntax like `&array[1..3];` (this is an immutable reference to the first three elements of `array`).
