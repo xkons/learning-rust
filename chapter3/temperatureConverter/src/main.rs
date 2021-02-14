@@ -33,7 +33,7 @@ fn get_conversion_unit_input() -> TemperatureUnit {
     }
 }
 
-fn get_degree_input(unit: TemperatureUnit) -> f32 {
+fn get_degree_input(unit: &TemperatureUnit) -> f32 {
     match unit {
         TemperatureUnit::Celsius => {
             println!("Please enter your Celsius value:");
@@ -59,7 +59,6 @@ fn get_degree_input(unit: TemperatureUnit) -> f32 {
     return degrees
 }
 
-#[derive(Copy, Clone)]
 enum TemperatureUnit {
     Celsius,
     Fahrenheit,
@@ -69,7 +68,7 @@ fn main() {
     println!("Welcome to the Rust temperature converter!");
 
     let original_unit: TemperatureUnit = get_conversion_unit_input();
-    let degrees_input: f32 = get_degree_input(original_unit);
+    let degrees_input: f32 = get_degree_input(&original_unit);
 
     match original_unit {
         TemperatureUnit::Celsius => {
