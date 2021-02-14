@@ -1,0 +1,1 @@
+This is where I keep notes and code challenges created while working through https://doc.rust-lang.org/
