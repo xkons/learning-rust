@@ -214,3 +214,27 @@ In languages with pointers, it’s easy to erroneously create a *dangling pointe
 ## Slices
 
 Slices in short are immutable references to parts of a `String` or `Array`, with a syntax like `&array[1..3];` (this is an immutable reference to the first three elements of `array`).
+
+
+
+# Chapter 5: Structs
+
+Assigning/updating/merging structs works quite similar to JavaScript Objects. See this code for example, which sets new values for `email` and `username` and takes the others from an existing object:
+
+```rust
+let user2 = User {
+  email: String::from("another@example.com"),
+  username: String::from("anotherusername567"),
+  ..user1
+};
+```
+
+Tuple structs have the added meaning the struct name provides but don’t have names associated with their fields; rather, they just have the types of the fields.
+
+```rust
+struct Color(i32, i32, i32);
+struct Point(i32, i32, i32);
+
+let black = Color(0, 0, 0);
+let origin = Point(0, 0, 0);
+```
