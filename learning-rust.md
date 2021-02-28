@@ -269,7 +269,7 @@ interface FormData {
   optionalField: null | string;
 }
 function sanitizeFormData(mandatoryField: string, optionalField: null | string = null): FormData {
-  const formData = { mandatoryField: mandatoryField.trim(), optionalField }
+  const formData: FormData = { mandatoryField: mandatoryField.trim(), optionalField }
   if (optionalField !== null) {
     // since optionalField can be null, we check this before calling trim().
     formData.optionalField = optionalField.trim()
