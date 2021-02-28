@@ -320,3 +320,66 @@ m.printValue();
 ```
 
 Also see the code example [here](./chapter6/enums/src/message.rs) for a more advanced example of enum methods where I also used the `Option` enum for hadling `null` values (in rust: `None`).
+
+# Chapter 6: Managing Growing Projects with Packages, Crates, and Modules
+
+Rust has a number of features that allow you to manage your code’s organization, including which details are exposed, which details are private, and what names are in each scope in your programs. These features, sometimes collectively referred to as the module system, include:
+
+- **Packages:** A Cargo feature that lets you build, test, and share crates
+- **Crates:** A tree of modules that produces a library or executable
+- **Modules and use:** Let you control the organization, scope, and privacy of paths
+- **Paths:** A way of naming an item, such as a struct, function, or module
+
+Any rust project that contains a `Cargo.toml` file is a package.
+
+**The pub keyword**
+
+The `pub` keyword. Everything in rust is private by default
+You can write `pub` in front of `mod`, `fn`, `struct` and `enum` to make them public.
+If you make a `struct` public, its properties are still private by default and you can control their visibility individually.
+If you have a `struct` with private properties, it is mandatory to have some sort of associated constructor method.
+
+**Module paths**
+
+You can navigate the contents within a module using paths. There are relative and absolute paths. Absolute paths start with `crate::`. You can use `super::` to call a function from the parent module.
+Wonder if you should use absolute or relative paths? Absolute paths are usually the way where you'll end up fixing less paths when moving things around.
+Here's an example path: `crate::front_of_house::hosting`.
+
+**The use keyword**
+
+We can bring a path into a scope once and then call the items in that path as if they’re local items with the `use` keyword. Adding `use` and a path in a scope is similar to creating a symbolic link in the filesystem. By adding `use crate::front_of_house::hosting` in the crate root, `hosting` is now a valid name in that scope.
+
+You shouldn't use `use` to bring functions into a named scope, as this makes it hard to understand if a function comes from the current/root module or from a different one.
+
+On the other hand, when bringing in structs, enums, and other items with `use`, it’s idiomatic to specify the full path. Example: `use std::collections::HashMap;`
+
+By adding the `pub` keyword in front of `use`, you are reexporting the module you are importing in your current module. Example: `pub use crate::front_of_house::hosting;`
+
+**The as keyword**
+
+You can use the `as` keyword to define import aliases. This is useful for when you're importing to structs with the same name from different modules:
+
+```rust
+use std::fmt::Result;
+use std::io::Result as IoResult;
+```
+
+**Nested imports**
+
+If we’re using multiple items defined in the same crate or same module, listing each item on its own line can take up a lot of vertical space in our files. Nested imports come to the rescue:
+
+```rust
+// we can turn this:
+use std::cmp::Ordering;
+use std::io;
+// into this:
+use std::{cmp::Ordering, io};
+```
+
+**The glob operator**
+
+`use std::collections::*;`  brings *all* public items defined in a path into scope. Be careful when using this operator as it makes it harder to see which depencies your crate actually has.
+
+### Organizing modules in separate directories and files
+
+If you write a bunch of rust code in different files inside the `spaghetti` directory in your `src` folder. You can import the code within that directory in your `main.rs` by using `mod spaghetti` to bring it into scope.
