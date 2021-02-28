@@ -319,4 +319,4 @@ let m = Message::Custom(String::from("hello"));
 m.printValue();
 ```
 
-Also see the code example [here](./chapter6/enums/src/main.rs) for a more advanced example of enum methods where I also used the `Option` enum for hadling `null` values (in rust: `None`).
+Also see the code example [here](./chapter6/enums/src/message.rs) for a more advanced example of enum methods where I also used the `Option` enum for hadling `null` values (in rust: `None`).
