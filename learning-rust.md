@@ -255,6 +255,52 @@ Here's a direct link to the talk on the QCon Website: https://www.infoq.com/pres
 - Customer requests and markets may not ask for what's good for them; they may need regulation to build the market
 - If the billion dollar mistake was the null pointer, the C gets function is a multi-billion dollar mistake that created the opportunity for malware and viruses to thrive
 
+### TypeScript vs Rust
+
+In JavaScript there exist not one way to represent a value that is currently invalid or absent for some reason but two: `undefined` and `null`.
+
+Let's compare an implementation of a function that trims whitespace on user input, where one input is optional:
+
+**Typescript**
+
+```typescript
+interface FormData {
+  mandatoryField: string;
+  optionalField: null | string;
+}
+function sanitizeFormData(mandatoryField: string, optionalField: null | string = null): FormData {
+  const formData = { mandatoryField: mandatoryField.trim(), optionalField }
+  if (optionalField !== null) {
+    // since optionalField can be null, we check this before calling trim().
+    formData.optionalField = optionalField.trim()
+  }
+  return fromData;
+}
+```
+
+**Rust**
+
+```rust
+struct FormData {
+    mandatory_field: String,
+    optional_field: Option<String>
+}
+
+fn sanitize_form_data(mandatory_field: &String, optional_field: &Option<String>) -> FormData {
+    let sanitized_mandatory_field = mandatory_field.trim().to_owned();
+    let sanitized_optional_field: Option<String> = match optional_field {
+        Some(field_value) => {
+            Some(field_value.trim().to_owned())
+        },
+        None => None
+    };
+    return FormData {
+        mandatory_field: sanitized_mandatory_field,
+        optional_field: sanitized_optional_field
+    }
+}
+```
+
 ## Defining methods on enums
 
 ```rust

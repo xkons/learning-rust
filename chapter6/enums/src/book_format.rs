@@ -1,31 +1,40 @@
-#[derive(PartialEq)]
-enum BookFormat {
-    Paperback,
-    Hardback,
-    Ebook,
+
+#[derive(Debug)]
+enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+    ChangeColor(i32, i32, i32),
 }
 
-struct Book {
-    isbn: i32,
-    format: BookFormat,
-}
+impl Message {
+    fn print(&self) {
+        println!("{:?}", self);
+    }
 
-// Implement <Book> == <BookFormat> comparisons
-impl PartialEq<BookFormat> for Book {
-    fn eq(&self, other: &BookFormat) -> bool {
-        self.format == *other
+    fn get_coordinates(&self) -> Option<(i32, i32)> {
+        match *self {
+            Message::Move {x, y} => Some((x, y)),
+            Message::Quit => None,
+            Message::Write(_) => None,
+            Message::ChangeColor(_,_,_) => None
+        }
     }
 }
 
-// Implement <BookFormat> == <Book> comparisons
-impl PartialEq<Book> for BookFormat {
-    fn eq(&self, other: &Book) -> bool {
-        *self == other.format
-    }
-}
+pub fn main() {
+    let write_message = Message::Write(String::from("hello"));
+    write_message.print();
 
-fn main() {
-  let book1 = Book { isbn: 3, format: BookFormat::Paperback };
-  println!("book1 is a paperback book: {}", book1 == BookFormat::Paperback);
-  println!("book1 is an Ebook: {}", BookFormat::Ebook != book1);
+    let move_message = Message::Move { x: 2, y: 3 };
+    match move_message.get_coordinates() {
+        Some(coordinates) => println!("Move coordinates: x: {}, y: {}", coordinates.0, coordinates.1),
+        _ => {}
+    }
+    move_message.print();
+
+    let quit_message = Message::Quit;
+    quit_message.print();
+    let change_color_message = Message::ChangeColor(2,3,4);
+    change_color_message.print();
 }
