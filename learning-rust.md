@@ -141,8 +141,6 @@ fn five() -> i32 { // return type is i32
 }
 ```
 
-
-
 # Chapter 4: Understanding Ownership
 
 Some languages manage a computer’s memory while running using garbage collection during runtime, others have prgraommers explicitly allocating and freeing memory. Rust uses a third approach: memory is managed through a system of ownership with a set of rules that the compiler checks at compile time. None of the ownership features slow down your program while it’s running.
@@ -215,8 +213,6 @@ In languages with pointers, it’s easy to erroneously create a *dangling pointe
 
 Slices in short are immutable references to parts of a `String` or `Array`, with a syntax like `&array[1..3];` (this is an immutable reference to the first three elements of `array`).
 
-
-
 # Chapter 5: Structs
 
 Assigning/updating/merging structs works quite similar to JavaScript Objects. See this code for example, which sets new values for `email` and `username` and takes the others from an existing object:
@@ -252,8 +248,29 @@ In his 2009 presentation “Null References: The Billion Dollar Mistake,” Tony
 Here's a direct link to the talk on the QCon Website: https://www.infoq.com/presentations/Null-References-The-Billion-Dollar-Mistake-Tony-Hoare/
 
 **Key takeaways from the talk** (Source QCon Webiste)
+
 - Null references have historically been a bad idea
 - Early compilers provided opt-out switches for run-time checks, at the expense of correctness
 - Programming language designers should be responsible for the errors in programs written in that language
 - Customer requests and markets may not ask for what's good for them; they may need regulation to build the market
 - If the billion dollar mistake was the null pointer, the C gets function is a multi-billion dollar mistake that created the opportunity for malware and viruses to thrive
+
+## Defining methods on enums
+
+```rust
+enum Message {
+    Quit,
+    Custom(String),
+    Confirm
+}
+impl Message {
+    fn printValue(&self) {
+        // since &self is an enum, you would use match here again to write specific logic.
+        println!("{:?}", self); // prints "hello" because that's what we used below.
+    }
+}
+let m = Message::Custom(String::from("hello"));
+m.printValue();
+```
+
+Also see the code example [here](./chapter6/enums/src/main.rs) for a more advanced example of enum methods where I also used the `Option` enum for hadling `null` values (in rust: `None`).
