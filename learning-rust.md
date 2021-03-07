@@ -404,3 +404,19 @@ There's two ways to access an element in rust:
 2. calling `Vec.get(index)`, which returns an `Option` enum, where you can use the `match` operator to handle `Some` or `None` element.
 
 As long as another variable holds a reference to an element a mutable vector, you cannot change the vector until that reference is destroyed, as mutating it might require allocating new memory and copying the old elements to the new space.
+
+## Strings
+
+- [Link to the API docs](https://doc.rust-lang.org/std/string/struct.String.html)
+- [Link to my code examples](./chapter8/strings/src/main.rs)
+
+When Rustaceans refer to “strings” in Rust, they usually mean the `String` and the string slice `&str` types, not just one of those types. The `String` type is a growable, mutable, owned and UTF-8 encoded. `&str` is also UTF-8 encoded.
+
+There is no way to access a character in a string by index.
+
+This is because some strings of foreign languages might look like they contain four characters, like the hindi `नमस्ते`, but they actually contain six char values (`['न', 'म', 'स', '्', 'त', 'े']`), where the fourth and the sixth are diacritics that don’t make sense on their own.
+
+Rust forces you to acknowledge that characters from different languages can be stored very differently so that accessing by index is not natural.
+
+What you can do is call `String.chars()` to iterate over each char within a string.
+
