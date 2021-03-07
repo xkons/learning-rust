@@ -321,7 +321,7 @@ m.printValue();
 
 Also see the code example [here](./chapter6/enums/src/message.rs) for a more advanced example of enum methods where I also used the `Option` enum for hadling `null` values (in rust: `None`).
 
-# Chapter 6: Managing Growing Projects with Packages, Crates, and Modules
+# Chapter 7: Managing Growing Projects with Packages, Crates, and Modules
 
 Rust has a number of features that allow you to manage your code’s organization, including which details are exposed, which details are private, and what names are in each scope in your programs. These features, sometimes collectively referred to as the module system, include:
 
@@ -383,3 +383,24 @@ use std::{cmp::Ordering, io};
 ### Organizing modules in separate directories and files
 
 If you write a bunch of rust code in different files inside the `spaghetti` directory in your `src` folder. You can import the code within that directory in your `main.rs` by using `mod spaghetti` to bring it into scope.
+
+# Chapter 8: Common Collections
+
+The data that collections point to is stored on the heap, which means the amount of data does not need to be known at compile time and can grow or shrink as the program runs.
+
+## Vectors
+
+- [Link to the API docs](https://doc.rust-lang.org/std/vec/struct.Vec.html)
+- [Link to my code examples](./chapter8/vectors/src/main.rs)
+
+The `Vec<T>` type is implemented using generics, so when you initialize an empty vector, you can define the type that each item will have like this: `Vec<i32>`.
+
+Rust will also infer the type for the values inside a Vector. For defining a vector that has initial values, use the built-in `vec!` macro like this: `let v = vec![1, 2, 3];`.
+
+You can add elements to a vector using `.push(element)`. This is only possible on mutable vectors.
+
+There's two ways to access an element in rust:
+1. indexing syntax `vector[index]`. This will cause the program to panic when trying to access an index that is out of bounds. Personal note: I find it surprising that rust doesn't check out of bounds index access for immutable vectors, where the compiler could know how long this vector actually is. This feels kind of inconsistent after the chapter on the `Option` enum and the billion dollar mistake of the `null` type. In [this stackoverflow answer on C++](https://stackoverflow.com/a/1239977) the reasoning for having a way to access an array element without bounds checking, is that it's faster than the one that does check bounds.
+2. calling `Vec.get(index)`, which returns an `Option` enum, where you can use the `match` operator to handle `Some` or `None` element.
+
+As long as another variable holds a reference to an element a mutable vector, you cannot change the vector until that reference is destroyed, as mutating it might require allocating new memory and copying the old elements to the new space.
