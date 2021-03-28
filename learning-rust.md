@@ -420,3 +420,155 @@ Rust forces you to acknowledge that characters from different languages can be s
 
 What you can do is call `String.chars()` to iterate over each char within a string.
 
+## Hash map
+
+- [Link to the API docs](https://doc.rust-lang.org/std/collections/struct.HashMap.html)
+- [Link to my code examples](./chapter8/hash-maps/src/main.rs)
+
+The type `HashMap<K, V>` stores a mapping of keys of type `K` to values of type `V`.
+
+# Chapter 10
+
+## Generics
+
+- [Link to my code examples](./chapter10/generics/src/main.rs)
+- [Link to official Rust code examples](https://doc.rust-lang.org/stable/rust-by-example/generics.html)
+
+We can use generics to create definitions for items like function signatures, structs or enums, which we can then use with many different concrete data types. 
+You can use as many generic type parameters in a definition as you want, but using more than a few makes your code hard to read. When you need lots of generic types in your code, it could indicate that your code needs restructuring into smaller pieces.
+
+### Enums and generics
+
+When you recognize situations in your code with multiple struct or enum definitions that differ only in the types of the values they hold, you can avoid duplication by using generic types instead.
+
+Examples:
+```rust
+enum Option<T> {
+    Some(T),
+    None,
+}
+
+enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+```
+
+### Performance of Code Using Generics
+
+Rust code using generic types doesn’t run any slower than it would with concrete types.
+
+Rust accomplishes this by performing monomorphization of the code that is using generics at compile time. Monomorphization is the process of turning generic code into specific code by filling in the concrete types that are used when compiled. When the code runs, it performs just as it would if we had duplicated each definition by hand. 
+
+```rust
+// these two usages of the generic Option<T> enum...
+let integer = Some(5);
+let float = Some(5.0);
+
+// are compiled into...
+enum Option_i32 {
+    Some(i32),
+    None,
+}
+enum Option_f64 {
+    Some(f64),
+    None,
+}
+fn main() {
+    let integer = Option_i32::Some(5);
+    let float = Option_f64::Some(5.0);
+}
+```
+
+## Traits
+
+- [Link to my code examples](./chapter10/traits/src/main.rs)
+
+Traits are similar to a feature often called interfaces in other languages, although with some differences, such as default implementations for methods on a Trait.
+
+### Traits as parameters
+Instead of a concrete type for a function parameter, we can specify the impl keyword and the trait name. Such a parameter accepts any type that implements the specified trait. In the body of notify, we can call any methods on item that come from the Summary trait, such as summarize
+
+```rust
+// this method accepts any instance of a struct that implements the Summary trait.
+pub fn notify(item: &impl Summary) {
+    println!("Breaking news! {}", item.summarize());
+}
+
+// the syntax above is just syntactic sugar for the bound syntax:
+pub fn notify<T: Summary>(item: &T) {
+    println!("Breaking news! {}", item.summarize());
+}
+```
+
+You can also type a method parameter in a way that it requires the provided struct to implement many traits:
+```rust
+pub fn notify(item: &(impl Summary + Display)) {
+  println!("Display: {}, Summary: {}", item.display(), item.summarize())
+}
+
+// with the bound syntax:
+pub fn notify<T: Summary + Display>(item: &T) {
+  println!("Display: {}, Summary: {}", item.display(), item.summarize())
+}
+```
+
+For easier readability Rust has alternate syntax for specifying trait bounds inside a where clause after the function signature:
+```rust
+fn some_function<T: Display + Clone, U: Clone + Debug>(t: &T, u: &U) -> i32 { /* ...*/ }
+
+fn some_function<T, U>(t: &T, u: &U) -> i32
+    where T: Display + Clone,
+          U: Clone + Debug
+{ /* ... */ }
+```
+
+### Lifetimes
+
+Another kind of generic that we’ve already been using is called lifetimes. Rather than ensuring that a type has the behavior we want, lifetimes ensure that references are valid as long as we need them to be.
+Every reference in Rust has a lifetime, which is the scope for which that reference is valid. Most of the time, lifetimes are implicit and inferred, just like most of the time, types are inferred.
+
+Rust uses lifetimes to save you from having dangling references in your program, which it does at compile time.
+
+```rust
+{
+  let r;
+  {
+    let x = 5;
+    r = &x;
+  } // at this point the variable x has gone out of scope and its memory is deallocated.
+  println!("r: {}", r); // wont't compile because r is set to a reference of the "now dead" x.
+}
+```
+
+The syntax for lifetimes goes like this:
+```rust
+// vor variable definitions:
+&i32        // a reference
+&'a i32     // a reference with an explicit lifetime
+&'a mut i32 // a mutable reference with an explicit lifetime
+// for functions:
+fn foo<'a>(x: &'a str, y: &'a str) -> &'a str { /* ... */ }
+// for structs:
+struct Play<'a> {
+    part: &'a str,
+}
+```
+
+#### Lifetime Elision
+Why do we not need to provide the variable lifetimes for a function like: `fn first_word(s: &str) -> &str { /* ... */ }`?
+
+This has a historic reason because the Rust team found themselves implementing the same lifetime generic `'a` in many places of the standard library, where they could also infer it based on **three rules**.
+The first rule applies to input lifetimes, and the second and third rules apply to output lifetimes. If the compiler gets to the end of the three rules and there are still references for which it can’t figure out lifetimes, the compiler will stop with an error. These rules apply to fn definitions as well as impl blocks.
+
+**The first rule** is that each parameter that is a reference gets its own lifetime parameter. In other words, a function with one parameter gets one lifetime parameter: fn foo<'a>(x: &'a i32); a function with two parameters gets two separate lifetime parameters: fn foo<'a, 'b>(x: &'a i32, y: &'b i32); and so on.
+
+**The second rule** is if there is exactly one input lifetime parameter, that lifetime is assigned to all output lifetime parameters: fn foo<'a>(x: &'a i32) -> &'a i32.
+
+**The third rule** is if there are multiple input lifetime parameters, but one of them is &self or &mut self because this is a method, the lifetime of self is assigned to all output lifetime parameters. This third rule makes methods much nicer to read and write because fewer symbols are necessary.
+
+These three rules don't work for functions that accept more than one parameter today.
+But in the Rust book they say that eventually the compiler will be able to do more lifetime inferring for you.
+
+#### The Static Lifetime
+There is one special `'static` lifetime, which indicates that a variable never goes out of scope while your program executes.
