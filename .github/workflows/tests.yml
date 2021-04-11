@@ -5,6 +5,9 @@ name: Run unit tests
 jobs:
   tests:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./chapter11/tests
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -15,7 +18,6 @@ jobs:
           toolchain: nightly
           override: true
           components: rustfmt, clippy
-        working-directory: ./chapter11/tests
 
       - name: Execute tests
         uses: actions-rs/cargo@v1
@@ -25,4 +27,3 @@ jobs:
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests"
-        working-directory: ./chapter11/tests
