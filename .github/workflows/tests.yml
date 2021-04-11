@@ -10,15 +10,14 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install toolchain
-        working-directory: ./chapter11/tests
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           override: true
-          profile: minimal
+          components: rustfmt, clippy
+        working-directory: ./chapter11/tests
 
       - name: Execute tests
-        working-directory: ./chapter11/tests
         uses: actions-rs/cargo@v1
         with:
           command: test
@@ -26,3 +25,4 @@ jobs:
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests"
+        working-directory: ./chapter11/tests
