@@ -692,3 +692,10 @@ fn read_username_from_file() -> Result<String, io::Error> {
 }
 ```
 The `?` is shorthand for the entire match statements in the first implementation. In other words, `?` applies to a `Result` value, and if it was an `Ok`, it unwraps it and gives the inner value. If it was an `Err`, it returns from the function you're currently in. Visually, it is much more straightforward. Instead of an entire match statement, now we are just using the single `?` character to indicate that here we are handling errors in the standard way, by passing them up the call stack.
+
+## Running cargo test with GitHub Actions
+
+As part of this chapter I've also added a GitHub Actions workflow that executes the tests I've added on each push.
+I learned that there's several unoffical but helpful rust actions available in the [actions-rs](https://github.com/actions-rs) organization.
+
+[Link to my unit test workflow](./github/workflows/test.yml)
