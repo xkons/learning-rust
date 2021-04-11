@@ -572,3 +572,123 @@ But in the Rust book they say that eventually the compiler will be able to do mo
 
 #### The Static Lifetime
 There is one special `'static` lifetime, which indicates that a variable never goes out of scope while your program executes.
+
+# Chapter 11: Writing automated tests
+
+- [Link to my code examples](./chapter11/tests/src/lib.rs)
+
+Most unit tests go into a tests mod with the `#[cfg(test)]` attribute. Test functions are marked with the `#[test]` attribute. The official rust convention recommends to write unit tests for a given code in the same file as the implementation. However there's nothing keeping you from writing tests in a separate file with a `.test.rs` suffix.
+
+The `#[cfg(test)]` annotation on the tests module tells Rust to compile and run the test code only when you run `cargo test`, not when you run `cargo build`.
+
+Tests fail when something in the test function panics. Each test is run in a new thread, and when the main thread sees that a test thread has died, the test is marked as failed.
+
+## Assertion macros
+
+The failure messages are optional parameters of these macros.
+
+```rust
+// the assert macro panics when the provided expression (in this case x) returns false
+assert!(x, "x wasn't true, but: {}!", x);
+
+// the assert_eq macro panics when the first two parameters are not equal
+// and also outputs the difference in this case
+assert_eq!(a, b, "we are testing addition with {} and {}", a, b);
+
+// the assert_ne macro panics when the firs two parameters are equal
+assert_ne!(a, b, "we are testing that the values are not equal");
+```
+
+## Testing panics
+
+Use the `#[should_panic]` attribute to assert that some test should panic.
+
+```rust
+#[test]
+#[should_panic]
+fn test_any_panic() {
+    divide_non_zero_result(1, 0);
+}
+```
+
+Such a test will be green for any panic that occurs in the code.
+To make sure that you're testing for a specific panic, use the `expected` parameter: `#[should_panic(expected = "Divide-by-zero error")]`.
+
+## Using Result<T, E> in Tests
+
+None of the previous unit test examples had a return type. But in Rust 2018, your unit tests can return `Result<()>`, which lets you use the `?` operator in them! This can make them much more concise.
+
+In contrast to the unit tests above, these tests are red when the Result value is `Err` and are green when the result value is `Ok`. No panicking required for failing tests.
+
+You can’t use the `#[should_panic]` annotation on tests that use `Result<T, E>`. Instead, you should return an `Err` value directly when the test should fail.
+
+```rust
+fn sqrt(number: f64) -> Result<f64, String> {
+    if number >= 0.0 {
+        Ok(number.powf(0.5))
+    } else {
+        Err("negative floats don't have square roots".to_owned())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sqrt() -> Result<(), String> {
+        let x = 4.0;
+        assert_eq!(sqrt(x)?.powf(2.0), x);
+        Ok(())
+    }
+
+    #[test] // non happy path test with no Result return type
+    fn test_sqrt_fails_for_negative_float() {
+        let x = -2.0;
+        assert!(sqrt(x).is_err())
+    }
+
+    #[test] // non happy path test with Result return type
+    fn test_sqrt_fails_for_negative_float_with_result() -> Result<(), String> {
+        let x = -2.0;
+        match sqrt(x) {
+            Ok(_) => Err("sqrt didn't fail for negative float".to_owned()),
+            Err(_) => Ok(())
+        }
+    }
+}
+```
+
+### The ? operator
+
+Chapter 11 is the first time I came across this `?` parameter and it's quite handy so I'll explain it right now. Here's a [link](https://doc.rust-lang.org/edition-guide/rust-2018/error-handling-and-panics/the-question-mark-operator-for-easier-error-handling.html) to the official documentation in the 2018 edition guide.
+
+```rust
+// taken from the offical docs
+fn read_username_from_file() -> Result<String, io::Error> {
+    let f = File::open("username.txt");
+
+    let mut f = match f {
+        Ok(file) => file,
+        Err(e) => return Err(e),
+    };
+
+    let mut s = String::new();
+
+    match f.read_to_string(&mut s) {
+        Ok(_) => Ok(s),
+        Err(e) => Err(e),
+    }
+}
+
+// with ? operator:
+fn read_username_from_file() -> Result<String, io::Error> {
+    let mut f = File::open("username.txt")?;
+    let mut s = String::new();
+
+    f.read_to_string(&mut s)?;
+
+    Ok(s)
+}
+```
+The `?` is shorthand for the entire match statements in the first implementation. In other words, `?` applies to a `Result` value, and if it was an `Ok`, it unwraps it and gives the inner value. If it was an `Err`, it returns from the function you're currently in. Visually, it is much more straightforward. Instead of an entire match statement, now we are just using the single `?` character to indicate that here we are handling errors in the standard way, by passing them up the call stack.
